@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
+import { reqLogin } from '@/api'
 import './index.less'
 
 class Login extends Component {
@@ -14,17 +15,25 @@ class Login extends Component {
       callback()
     }
   }
+
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+    this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        console.log('login: ', values);
+        const res = await reqLogin(values.userName, values.pwd)
+        if (!res.code) {
+          message.success('登陆成功！')
+        } else {
+          message.error(res.msg)
+        }
+      } else {
+        message.warning('信息填写不完整！')
       }
     });
   }
+
   render () {
     const { getFieldDecorator } = this.props.form
-
     return (
       <div className="LoginPage">
         <header className="header">react-admin 登陆页面</header>
@@ -32,7 +41,7 @@ class Login extends Component {
           <h4 className="form-title">欢迎登陆</h4>
           <Form onSubmit={this.handleSubmit} className="login-form">
             <Form.Item>
-              {getFieldDecorator('id', {
+              {getFieldDecorator('userName', {
                 rules: [
                   { required: true, message: '用户名必填!' },
                   { min: 4, message: '最少4位!' },
