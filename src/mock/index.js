@@ -6,7 +6,7 @@ Mock.mock('/login', 'post', function (options) {
     return {
       code: 0,
       data: {
-        _id: 0,
+        _id: 1234,
         userName: data.userName
       }
     }

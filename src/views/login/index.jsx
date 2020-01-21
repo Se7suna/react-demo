@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import { Form, Icon, Input, Button, message } from 'antd';
 import { reqLogin } from '@/api'
+import memory from '@/utils/memory.js'
+import { setUser, getUser } from '@/utils/local.js'
 import './index.less'
 
 class Login extends Component {
   checkData = (rule, value, callback) => {
     if (value.trim() === '') {
-      callback('not kong')
+      callback('密码必填')
     } else if (value.length < 4) {
-      callback('min 4')
+      callback('密码最少4位')
     } else if (value.length > 12) {
-      callback('max 12')
+      callback('密码最多12位')
     } else {
       callback()
     }
@@ -23,6 +25,8 @@ class Login extends Component {
         const res = await reqLogin(values.userName, values.pwd)
         if (!res.code) {
           message.success('登陆成功！')
+          setUser(res.data)
+          this.props.history.replace('/')
         } else {
           message.error(res.msg)
         }
@@ -30,6 +34,12 @@ class Login extends Component {
         message.warning('信息填写不完整！')
       }
     });
+  }
+
+  componentWillMount () {
+    if (getUser()._id) {
+      this.props.history.replace('/home')
+    }
   }
 
   render () {
@@ -43,10 +53,10 @@ class Login extends Component {
             <Form.Item>
               {getFieldDecorator('userName', {
                 rules: [
-                  { required: true, message: '用户名必填!' },
-                  { min: 4, message: '最少4位!' },
-                  { max: 12, message: '最多12位!' },
-                  { pattern: /^[A-z0-9_]+$/, message: '只能输入英文数字下划线' }
+                  { required: true, message: '用户名必填 ' },
+                  { min: 4, message: '最少4位 ' },
+                  { max: 12, message: '最多12位 ' },
+                  { pattern: /^[A-z0-9_]+$/, message: '只能输入英文数字下划线 ' }
                 ],
               })(
                 <Input
