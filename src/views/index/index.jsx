@@ -83,7 +83,7 @@ export default class Index extends Component {
         </Sider>
         <Layout>
           <IndexHeader />
-          <Content>
+          <Content className="content">
             <Switch>
               <Route path="/home" component={Home} />
               <Route path="/category" component={Category} />
