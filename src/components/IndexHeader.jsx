@@ -2,19 +2,25 @@ import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { Layout, Button } from 'antd'
 import memory from '@/utils/memory.js'
+import { removeUser } from '@/utils/local.js'
 
 const { Header } = Layout
 class IndexHeader extends Component {
   state = {
     time: new Date().toLocaleString(),
-    name: memory.user.userName
+    name: memory.user.name
+  }
+
+  logout = () => {
+    memory.user = {}
+    removeUser()
+    this.props.history.replace('/login')
   }
 
   componentDidMount () {
     this.intervalId = setInterval(() => {
       this.setState({ time: new Date().toLocaleString() })
     }, 1000)
-    console.log(this.props)
   }
 
   componentWillUnmount () {
