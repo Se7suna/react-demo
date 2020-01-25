@@ -8,7 +8,7 @@ const { Header } = Layout
 class IndexHeader extends Component {
   state = {
     time: new Date().toLocaleString(),
-    name: memory.user.name
+    name: memory.user.username
   }
 
   logout = () => {

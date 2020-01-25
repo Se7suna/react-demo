@@ -14,7 +14,7 @@ class Category extends Component {
     visible: false
   }
   columns = [
-    { title: '名称', dataIndex: 'name', key: 'id', },
+    { title: '名称', dataIndex: 'name' },
     {
       title: '操作', width: 30,
       render: item => {
@@ -32,7 +32,7 @@ class Category extends Component {
     this.setState({ loading: true })
     const res = await reqCategory(id)
     for (let i of res.data) {
-      i.key = i.id
+      i.key = i._id
     }
     if (id === 0) {
       this.setState({ list: res.data, loading: false })
@@ -47,8 +47,8 @@ class Category extends Component {
   }
 
   showSub = item => {
-    this.getLIst(item.id)
-    this.setState({ showId: item.id, showName: item.name })
+    this.getLIst(item._id)
+    this.setState({ showId: item._id, showName: item.name })
   }
 
   back = () => {
@@ -95,11 +95,11 @@ class Category extends Component {
         >
           <Form className="login-form">
             <Form.Item>
-              {getFieldDecorator('id', { initialValue: this.changeItem && this.changeItem.id })(
+              {getFieldDecorator('id', { initialValue: this.changeItem && this.changeItem.name })(
                 <Select placeholder="选择分类">
                   {showId === 0 ?
-                    list.map(item => (<Option value={item.id} key={item.id}>{item.name}</Option>)) :
-                    subList.map(item => (<Option value={item.id} key={item.id}>{item.name}</Option>))
+                    list.map(item => (<Option value={item._id} key={item._id}>{item.name}</Option>)) :
+                    subList.map(item => (<Option value={item._id} key={item._id}>{item.name}</Option>))
                   }
                 </Select>
               )}

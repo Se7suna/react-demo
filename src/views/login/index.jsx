@@ -21,9 +21,10 @@ class Login extends Component {
     e.preventDefault();
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        const res = await reqLogin(values.userName, values.pwd)
-        if (!res.code) {
+        const res = await reqLogin(values.username, values.password)
+        if (!res.status) {
           message.success('登陆成功！')
+          console.log(res)
           setUser(res.data)
           this.props.history.replace('/')
         } else {
@@ -50,7 +51,7 @@ class Login extends Component {
           <h4 className="form-title">欢迎登陆</h4>
           <Form onSubmit={this.handleSubmit} className="login-form">
             <Form.Item>
-              {getFieldDecorator('userName', {
+              {getFieldDecorator('username', {
                 rules: [
                   { required: true, message: '用户名必填 ' },
                   { min: 4, message: '最少4位 ' },
@@ -65,7 +66,7 @@ class Login extends Component {
               )}
             </Form.Item>
             <Form.Item>
-              {getFieldDecorator('pwd', {
+              {getFieldDecorator('password', {
                 rules: [
                   { validator: this.checkData },
                 ],
