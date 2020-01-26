@@ -19,9 +19,6 @@ class Category extends Component {
   getLIst = async id => {
     this.setState({ loading: true })
     const res = await reqCategory(id)
-    for (let i of res.data) {
-      i.key = i._id
-    }
     if (id === '0') {
       this.setState({ list: res.data, loading: false })
     } else {
@@ -78,7 +75,7 @@ class Category extends Component {
     )
     return (
       <Card title={showId === '0' ? '一级列表分类' : headTitle} extra={<Button type="primary" onClick={this.showAdd}>添加</Button>}>
-        <Table dataSource={showId === '0' ? list : subList} columns={this.columns} loading={loading} pagination={{ pageSize: 2 }} />
+        <Table dataSource={showId === '0' ? list : subList} columns={this.columns} loading={loading} pagination={{ pageSize: 2 }} rowKey="_id"/>
         <ChangeForm visible={visible === 1} list={list} showId={showId} getList={this.getLIst} showCancel={this.showCancel} subList={subList} changeId={changeId} />
         <AddForm visible={visible === 2} list={list} showId={showId} getList={this.getLIst} showCancel={this.showCancel} />
       </Card>
