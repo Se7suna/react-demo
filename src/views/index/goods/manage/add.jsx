@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { Card, Icon, Form, Input, Upload, Modal } from 'antd'
+import { Card, Icon, Form, Input, Upload, Modal, Cascader } from 'antd'
+import { reqCategory } from '@/api'
 const { TextArea } = Input
 
 function getBase64 (file) {
@@ -27,7 +28,9 @@ export default class Add extends Component {
         name: 'image.png',
         status: 'error',
       }
-    ]
+    ],
+    good: {},
+    category: []
   }
 
   formItemLayout = {
@@ -39,15 +42,6 @@ export default class Add extends Component {
     <div>
       <Icon type="plus" />
       <div className="ant-upload-text">Upload</div>
-    </div>
-  )
-
-  title = (
-    <div>
-      <span onClick={this.props.history.goBack}>
-        <Icon type="arrow-left" style={{ color: 'green', marginRight: 10 }} />
-      </span>
-      <span>添加商品</span>
     </div>
   )
 
@@ -65,22 +59,67 @@ export default class Add extends Component {
 
   handleChange = ({ fileList }) => this.setState({ fileList })
 
+  getCategory = async id => {
+    const res = await reqCategory(id)
+    if (!res.status) {
+      for (let i of res.data) {
+        i.value = i._id
+        i.label = i.name
+      }
+      if (+id === 0) {
+        this.setState({ category: res.data })
+        return res.data
+      } else {
+        const { category } = this.state
+        const data = category.map(item => {
+          if (item._id === id) item.children = res.data
+          return item
+        })
+        this.setState({ category: data })
+      }
+    }
+  }
+
+  componentWillMount () {
+    const data = this.props.location.state
+    if (data) {
+      this.setState({
+        good: data
+      })
+    }
+  }
+
+  async componentDidMount () {
+    let topCategory = await this.getCategory(0)
+    for (let i of topCategory) {
+      this.getCategory(i._id)
+    }
+  }
+
   render () {
-    const { previewVisible, previewImage, fileList } = this.state;
+    const { previewVisible, previewImage, fileList, good, category } = this.state;
+    const title = (
+      <div>
+        <span onClick={this.props.history.goBack}>
+          <Icon type="arrow-left" style={{ color: 'green', marginRight: 10 }} />
+        </span>
+        <span>{good._id ? '修改商品' : '添加商品'}</span>
+      </div>
+    )
     return (
-      <Card title={this.title}>
+      <Card title={title}>
         <Form {...this.formItemLayout}>
           <Form.Item label="商品名称">
-            <Input />
+            <Input value={good.name} />
           </Form.Item>
           <Form.Item label="商品描述">
-            <TextArea />
+            <TextArea value={good.desc} />
           </Form.Item>
           <Form.Item label="商品价格">
-            <Input type="number" addonAfter="元" />
+            <Input type="number" value={good.price} addonAfter="元" />
           </Form.Item>
           <Form.Item label="商品分类">
-            <Input />
+            <Cascader options={category} changeOnSelect placeholder="请选择" value={[good.pCategoryId, good.categoryId]} />
           </Form.Item>
           <Form.Item label="商品图片">
             <Upload
