@@ -47,7 +47,7 @@ export default class Goods extends Component {
       render: item => {
         return (
           <div style={{ textAlign: "center" }}>
-            <Button type="link" onClick={() => this.jumpAdd(item)}>修改</Button>
+            <Button type="link" onClick={() => this.jumpChange(item)}>修改</Button>
             <Button type="link" onClick={() => this.jumpDetail(item)} > 查看</Button>
           </div>
         )
@@ -55,7 +55,10 @@ export default class Goods extends Component {
     }
   ]
 
-  jumpAdd = item => {
+  jumpAdd = () => {
+    this.props.history.push('/manage/add')
+  }
+  jumpChange = item => {
     this.props.history.push('/manage/add', item)
   }
 

@@ -1,34 +1,11 @@
 import React, { Component } from 'react'
-import { Card, Icon, Form, Input, Upload, Modal, Cascader } from 'antd'
+import { Card, Icon, Form, Input, Cascader, Button } from 'antd'
 import { reqCategory } from '@/api'
+import ImgUpload from './ImgUpload'
 const { TextArea } = Input
-
-function getBase64 (file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
 
 export default class Add extends Component {
   state = {
-    previewVisible: false,
-    previewImage: '',
-    fileList: [
-      {
-        uid: '-1',
-        name: 'image.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      },
-      {
-        uid: '-5',
-        name: 'image.png',
-        status: 'error',
-      }
-    ],
     good: {},
     category: []
   }
@@ -38,26 +15,11 @@ export default class Add extends Component {
     wrapperCol: { span: 16 },
   }
 
-  uploadButton = (
-    <div>
-      <Icon type="plus" />
-      <div className="ant-upload-text">Upload</div>
-    </div>
-  )
-
-  handlePreview = async file => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    this.setState({
-      previewImage: file.url || file.preview,
-      previewVisible: true,
-    });
+  changeValue = (key, e) => {
+    const { good } = this.state
+    good[key] = e.target.value
+    this.setState({ good })
   }
-
-  handleCancel = () => this.setState({ previewVisible: false })
-
-  handleChange = ({ fileList }) => this.setState({ fileList })
 
   getCategory = async id => {
     const res = await reqCategory(id)
@@ -80,6 +42,13 @@ export default class Add extends Component {
     }
   }
 
+  cascaderChange = (idArr) => {
+    const { good } = this.state
+    good.pCategoryId = idArr[0]
+    good.categoryId = idArr[1]
+    this.setState({ good })
+  }
+
   componentWillMount () {
     const data = this.props.location.state
     if (data) {
@@ -87,6 +56,10 @@ export default class Add extends Component {
         good: data
       })
     }
+  }
+
+  pushData = () => {
+    console.log(this.refs.imgs.getList())
   }
 
   async componentDidMount () {
@@ -97,7 +70,9 @@ export default class Add extends Component {
   }
 
   render () {
-    const { previewVisible, previewImage, fileList, good, category } = this.state;
+    const { good, category } = this.state;
+    let casArr = [good.categoryId]
+    if (+good.pCategoryId !== 0) casArr.unshift(good.pCategoryId)
     const title = (
       <div>
         <span onClick={this.props.history.goBack}>
@@ -110,33 +85,23 @@ export default class Add extends Component {
       <Card title={title}>
         <Form {...this.formItemLayout}>
           <Form.Item label="商品名称">
-            <Input value={good.name} />
+            <Input value={good.name} onChange={e => this.changeValue('name', e)} />
           </Form.Item>
           <Form.Item label="商品描述">
-            <TextArea value={good.desc} />
+            <TextArea value={good.desc} onChange={e => this.changeValue('desc', e)} />
           </Form.Item>
           <Form.Item label="商品价格">
-            <Input type="number" value={good.price} addonAfter="元" />
+            <Input type="number" value={good.price} addonAfter="元" onChange={e => this.changeValue('price', e)} />
           </Form.Item>
           <Form.Item label="商品分类">
-            <Cascader options={category} changeOnSelect placeholder="请选择" value={[good.pCategoryId, good.categoryId]} />
+            <Cascader options={category} changeOnSelect placeholder="请选择" value={casArr} onChange={this.cascaderChange} />
           </Form.Item>
           <Form.Item label="商品图片">
-            <Upload
-              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-              listType="picture-card"
-              fileList={fileList}
-              onPreview={this.handlePreview}
-              onChange={this.handleChange}
-            >
-              {fileList.length >= 8 ? null : this.uploadButton}
-            </Upload>
-            <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-              <img alt="example" style={{ width: '100%' }} src={previewImage} />
-            </Modal>
+            <ImgUpload good={good} ref="imgs" />
           </Form.Item>
           <Form.Item label="商品详情">
             <Input />
+            <Button onClick={this.pushData}>提交</Button>
           </Form.Item>
         </Form>
       </Card>
